@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>日語小教室</title>
+  <style>
+    body {
+      font-family: system-ui, "Noto Sans CJK", sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 24px;
+      color: #111;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    
+    h1 { 
+      margin: 0 0 24px 0; 
+      font-size: 2rem; 
+      color: #fff;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+      margin-top: 20px;
+      transition: 0.3s ease;
+    }
+    .card:hover {
+      box-shadow: 0 16px 50px rgba(0,0,0,0.2);
+    }
+
+    h2 {
+      color: #667eea;
+      font-size: 1.4rem;
+      margin-top: 0;
+      margin-bottom: 16px;
+      border-left: 4px solid #667eea;
+      padding-left: 12px;
+    }
+
+    .video-wrap { 
+      width:100%; 
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.15);
+    }
+    .video-wrap video { 
+      width:100%; 
+      display: block;
+    }
+
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+    button:hover:not([disabled]) { 
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    button:active:not([disabled]) {
+      transform: translateY(0);
+    }
+    button[disabled] { 
+      opacity: 0.5; 
+      cursor: not-allowed; 
+    }
+
+    .hidden { display:none; }
+
+    .quiz-area {
+      background: linear-gradient(135deg, #f5f7ff 0%, #e8ecff 100%);
+      border: 2px solid #667eea;
+      border-radius: 16px;
+      padding: 24px;
+      margin-top: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .quiz-area h3 {
+      color: #667eea;
+      font-size: 1.1rem;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+
+    .quiz-area .answer-input {
+      width: 60%;
+      max-width: 420px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 2px solid #dde3ff;
+      font-size: 14px;
+      margin-bottom: 12px;
+      transition: all 0.2s;
+      background: #fff;
+      display: block;
+    }
+    .quiz-area input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    /* 單題答錯時把該題標成紅色 */
+    .question-block.wrong .kana-box {
+      background: linear-gradient(135deg,#ff6b6b 0%, #ff9a9a 100%);
+      color: #fff;
+    }
+    .question-block.wrong .answer-input {
+      border-color: #ff6b6b;
+      box-shadow: 0 4px 12px rgba(255,107,107,0.12);
+    }
+
+    .mc-block {
+      background: #fff;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      border: 2px solid #e8ecff;
+      transition: all 0.2s;
+    }
+    .mc-block:hover {
+      border-color: #667eea;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+    }
+
+    .mc-block p {
+      margin: 0 0 12px 0;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .mc-block label {
+      display: block;
+      margin: 8px 0;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #f8f9ff;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #555;
+    }
+    .mc-block label:hover {
+      background: #e8ecff;
+      color: #667eea;
+    }
+
+    .mc-block input[type="radio"] {
+      margin-right: 8px;
+      cursor: pointer;
+      accent-color: #667eea;
+    }
+
+    .kana-box {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 2rem;
+      text-align: center;
+      margin-bottom: 12px;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+    }
+
+    /* 失敗時紅色並搖動 */
+    .quiz-area.danger {
+      background: linear-gradient(135deg, #ffe8e8 0%, #ffd4d4 100%);
+      border-color: #ff6b6b;
+      box-shadow: 0 8px 24px rgba(255, 107, 107, 0.2);
+    }
+
+    @keyframes shake { 
+      0%,100%{transform:translateX(0);} 
+      20%{transform:translateX(-12px);} 
+      40%{transform:translateX(12px);} 
+      60%{transform:translateX(-8px);} 
+      80%{transform:translateX(8px);} 
+    }
+    .shake-card { animation: shake 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
+
+    /* 五十音表格 */
+    .kana-panel {
+      margin-top: 16px;
+      border-radius: 14px;
+      background: #fff;
+      padding: 16px;
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.1);
+      max-height: 360px;
+      overflow-y: auto;
+      transition: all 0.2s;
+      border: 2px solid #e8ecff;
+    }
+
+    .kana-table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 13px;
+    }
+    .kana-table td {
+      border: 1px solid #e8ecff;
+      padding: 10px;
+      text-align: center;
+      vertical-align: middle;
+      min-width: 64px;
+      background: linear-gradient(135deg, #fff 0%, #f8f9ff 100%);
+      transition: all 0.2s;
+    }
+    .kana-table td:hover {
+      background: linear-gradient(135deg, #f5f7ff 0%, #e8ecff 100%);
+    }
+
+    .kana-cell-kana { 
+      font-size: 24px; 
+      font-weight: 700; 
+      color: #667eea;
+    }
+    .kana-cell-rom { 
+      font-size: 11px; 
+      color: #888; 
+      margin-top: 4px; 
+    }
+
+    .kana-panel .note { 
+      font-size: 12px; 
+      color: #666; 
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+
+    .controls-row { 
+      display: flex; 
+      gap: 12px; 
+      align-items: center; 
+      margin-top: 16px; 
+      flex-wrap: wrap; 
+    }
+
+    #score-50, #score-intro, #score-phrases {
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+      border-left: 4px solid #4caf50;
+      border-radius: 8px;
+      color: #2e7d32;
+      font-weight: 600;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .info-text {
+      font-size: 13px;
+      color: #999;
+    }
+
+    /* 滑鼠點擊特效 */
+    .click-effect {
+      position: fixed;
+      pointer-events: none;
+      font-size: 24px;
+      font-weight: 700;
+      z-index: 9999;
+      animation: popFloat 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+
+    @keyframes popFloat {
+      0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(0, -80px) scale(1.5);
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>📚 日語小教室</h1>
+
+  <section class="card" id="stage-1">
+    <h2>階段 1：五十音學習</h2>
+    <div class="video-wrap">
+      <video id="video-50" controls preload="none" src="五十音.mp4"></video>
+    </div>
+
+    <div class="controls-row">
+      <button id="btn-start-quiz-50">🎯 開始五十音測驗</button>
+      <button id="btn-toggle-table-50" type="button" aria-expanded="false">📋 查看五十音表</button>
+      <div style="flex:1"></div>
+      <span class="info-text">※ 測驗開始後將鎖定表格直到繳交</span>
+    </div>
+
+    <div id="kana-panel" class="kana-panel hidden" aria-hidden="true">
+      <div class="note">✨ 五十音表（點擊「查看五十音表」可關閉／開啟）</div>
+      <div id="kana-table-wrap"></div>
+    </div>
+
+    <div id="quiz-50" class="quiz-area hidden">
+      <h3>🔤 請填寫羅馬拼音（共 5 題）</h3>
+      <div id="quiz-50-questions"></div>
+      <button id="submit-50" style="margin-top: 16px;">✅ 交卷</button>
+      <div id="score-50"></div>
+    </div>
+  </section>
+
+  <section class="card" id="stage-2">
+    <h2>階段 2：自我介紹教學</h2>
+    <div class="video-wrap">
+      <video id="video-intro" controls preload="none" src="日文自我介紹.mp4"></video>
+    </div>
+    <button id="btn-start-quiz-intro" disabled>🎤 開始自我介紹測驗</button>
+
+    <div id="quiz-intro" class="quiz-area hidden">
+      <h3>📝 選擇題（3 題）</h3>
+      <div id="quiz-intro-questions"></div>
+      <button id="submit-intro" style="margin-top: 16px;">✅ 交卷</button>
+      <div id="score-intro"></div>
+    </div>
+  </section>
+
+  <section class="card" id="stage-3">
+    <h2>階段 3：日常用語</h2>
+    <div class="video-wrap">
+      <video id="video-phrases" controls preload="none" src="日常用語.mp4"></video>
+    </div>
+    <button id="btn-start-quiz-phrases" disabled>📝 開始日常用語小測驗</button>
+
+    <div id="quiz-phrases" class="quiz-area hidden">
+      <h3>💬 日常用語 - 選擇題（隨機 5 題）</h3>
+      <div id="quiz-phrases-questions"></div>
+      <button id="submit-phrases" style="margin-top: 16px;">✅ 交卷</button>
+      <div id="score-phrases"></div>
+    </div>
+  </section>
+
+  <!-- 新增：總成績區塊（會在三個測驗都交卷後顯示） -->
+  <section id="overall-summary" class="card hidden">
+    <h2>🏆 總成績</h2>
+    <div id="overall-score" style="font-size:16px; font-weight:700; color:#2e7d32;"></div>
+  </section>
+</div>
+
+<script>
+const PASS_RATE = 0.8;
+// 紀錄各測驗成績狀態
+let scoreState = {
+  quiz50: null,    // { correct, total }
+  intro: null,     // { correct, total }
+  phrases: null    // { correct, total }
+};
+
+function updateOverallDisplay(){
+  if(!scoreState.quiz50 || !scoreState.intro || !scoreState.phrases) return;
+  const totCorrect = scoreState.quiz50.correct + scoreState.intro.correct + scoreState.phrases.correct;
+  const totPossible = scoreState.quiz50.total + scoreState.intro.total + scoreState.phrases.total;
+  const percent = Math.round((totCorrect / totPossible) * 100);
+  $('overall-score').innerHTML = `總得分：${percent}%（${totCorrect}/${totPossible}）`;
+  $('overall-summary').classList.remove('hidden');
+}
+ 
+const kanaList = [
+ ['あ','a'],['い','i'],['う','u'],['え','e'],['お','o'],
+ ['か','ka'],['き','ki'],['く','ku'],['け','ke'],['こ','ko'],
+ ['さ','sa'],['し','shi'],['す','su'],['せ','se'],['そ','so'],
+ ['た','ta'],['ち','chi'],['つ','tsu'],['て','te'],['と','to'],
+ ['な','na'],['に','ni'],['ぬ','nu'],['ね','ne'],['の','no'],
+ ['は','ha'],['ひ','hi'],['ふ','fu'],['へ','he'],['ほ','ho'],
+ ['ま','ma'],['み','mi'],['む','mu'],['め','me'],['も','mo'],
+ ['や','ya'],['ゆ','yu'],['よ','yo'],
+ ['ら','ra'],['り','ri'],['る','ru'],['れ','re'],['ろ','ro'],
+ ['わ','wa'],['を','wo'],['ん','n']
+];
+
+const introQuestions = [
+  {q:'「はじめまして」的意思是？', c:['再見','初次見面','謝謝'], a:1},
+  {q:'「よろしくお願いします」代表？', c:['請多指教','我肚子餓','我在唱歌'], a:0},
+  {q:'遇到第一次見面的人，常見順序是？', c:['姓名→身分→結尾問候','星座→血型→興趣','年齡→身高→體重'], a:0},
+];
+
+const phraseList = [
+  ['こんにちは','你好'],
+  ['おはよう（ございます）','早安'],
+  ['こんばんは','晚上好'],
+  ['おやすみ（なさい）','晚安'],
+  ['さようなら','再見'],
+  ['じゃ、また（あいましょう）','再見'],
+  ['ありがとう（ございます）','謝謝'],
+  ['どういたしまして','不客氣'],
+  ['すみません','對不起．不好意思'],
+  ['よろしく（おねがいします）','請多指教'],
+  ['おねがいします','麻煩您'],
+  ['（お）ひさしぶり（です）','好久不見'],
+  ['（お）げんき（ですか）？','你好嗎？'],
+  ['おめでとう（ございます）','恭喜您'],
+  ['おだいじに','請保重'],
+  ['おつかれさまです','辛苦了'],
+  ['いただきます','開動（感謝）'],
+  ['ごちそうさまでした','吃飽了（感謝）'],
+  ['いってきます','我要出門了'],
+  ['いってらっしゃい','慢走'],
+  ['ただいま','我回來了'],
+  ['おかえり（なさい）','你回來了'],
+  ['はじめまして','初次見面'],
+  ['ちょっとまって（ください）','請等一下。']
+];
+
+const clickEmojis = ['✨', '🎉', '💫', '⭐', '🌟', '💥', '🎊', '🌈', '🔥', '💝'];
+
+function $(id){return document.getElementById(id)}
+function shuffle(arr){return arr.sort(()=>Math.random()-0.5)}
+
+/* 新增：滑鼠點擊特效 */
+document.addEventListener('click', (e) => {
+  const effect = document.createElement('div');
+  effect.className = 'click-effect';
+  effect.textContent = clickEmojis[Math.floor(Math.random() * clickEmojis.length)];
+  effect.style.left = e.clientX + 'px';
+  effect.style.top = e.clientY + 'px';
+  effect.style.color = ['#FF6B9D', '#FFA502', '#26C485', '#5E72E4', '#FF5733'][Math.floor(Math.random() * 5)];
+  document.body.appendChild(effect);
+  
+  setTimeout(() => effect.remove(), 800);
+});
+
+let kanaTableLocked = false;
+const btnToggleTable = $('btn-toggle-table-50');
+const kanaPanel = $('kana-panel');
+const kanaTableWrap = $('kana-table-wrap');
+
+function renderKanaTable(){
+  const perRow = 5;
+  const table = document.createElement('table');
+  table.className = 'kana-table';
+  let row;
+  kanaList.forEach((k, idx) => {
+    if(idx % perRow === 0){
+      row = document.createElement('tr');
+      table.appendChild(row);
+    }
+    const td = document.createElement('td');
+    td.innerHTML = `<div class="kana-cell-kana">${k[0]}</div><div class="kana-cell-rom">${k[1]}</div>`;
+    row.appendChild(td);
+  });
+  const lastCells = row ? row.children.length : 0;
+  if(lastCells > 0 && lastCells < perRow){
+    for(let i=0;i<perRow-lastCells;i++){
+      const td = document.createElement('td');
+      td.innerHTML = '&nbsp;';
+      row.appendChild(td);
+    }
+  }
+  kanaTableWrap.innerHTML = '';
+  kanaTableWrap.appendChild(table);
+}
+renderKanaTable();
+
+btnToggleTable.addEventListener('click', () => {
+  if(kanaTableLocked) return;
+  const isHidden = kanaPanel.classList.contains('hidden');
+  if(isHidden){
+    kanaPanel.classList.remove('hidden');
+    btnToggleTable.setAttribute('aria-expanded','true');
+    kanaPanel.setAttribute('aria-hidden','false');
+  } else {
+    kanaPanel.classList.add('hidden');
+    btnToggleTable.setAttribute('aria-expanded','false');
+    kanaPanel.setAttribute('aria-hidden','true');
+  }
+});
+
+$('btn-start-quiz-50').onclick = () => {
+  kanaPanel.classList.add('hidden');
+  btnToggleTable.setAttribute('aria-expanded','false');
+  kanaTableLocked = true;
+  btnToggleTable.disabled = true;
+
+  const area = $('quiz-50');
+  const qBox = $('quiz-50-questions');
+  area.classList.remove('hidden');
+
+  qBox.innerHTML = '';
+  let qs = shuffle([...kanaList]).slice(0,5);
+
+  qs.forEach(k => {
+    let div = document.createElement('div');
+    div.className = 'question-block';
+    div.innerHTML = `<div class='kana-box'>${k[0]}</div>
+                     <input type="text" class="answer-input" data-answer='${k[1]}' placeholder='輸入羅馬拼音'>`;
+    qBox.appendChild(div);
+  });
+};
+
+$('submit-50').onclick = () => {
+  const inputs = [...document.querySelectorAll('#quiz-50-questions input.answer-input')];
+  let correct = 0;
+  inputs.forEach(inp => {
+    const ok = inp.value.trim().toLowerCase() === inp.dataset.answer;
+    const container = inp.closest('.question-block');
+    if(ok){
+      correct++;
+      if(container) container.classList.remove('wrong');
+    } else {
+      if(container) container.classList.add('wrong');
+    }
+  });
+  let score = correct / inputs.length;
+  const percent = Math.round(score * 100);
+  $('score-50').innerHTML = `🎉 得分：${percent}% (${correct}/${inputs.length})${score >= PASS_RATE ? ' ✨ 優秀！' : ''}`;
+
+  // 記錄並更新總成績顯示
+  scoreState.quiz50 = { correct: correct, total: inputs.length };
+  updateOverallDisplay();
+
+  if(score >= PASS_RATE){
+    $('btn-start-quiz-intro').disabled = false;
+  } else {
+    crowFly();
+  }
+
+  kanaTableLocked = false;
+  btnToggleTable.disabled = false;
+
+  sendScoreToMoodle(percent);
+};
+
+function sendScoreToMoodle(percent){
+  fetch('/moodle/submit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ score_percent: percent })
+  }).catch(()=> {
+    // 忽略錯誤
+  });
+}
+
+$('btn-start-quiz-intro').onclick = () => {
+  $('quiz-intro').classList.remove('hidden');
+  const box = $('quiz-intro-questions');
+  box.innerHTML = '';
+
+  introQuestions.forEach((q,i) => {
+    let div = document.createElement('div');
+    div.className='mc-block';
+    div.innerHTML = `<p>${q.q}</p>` +
+      q.c.map((c,idx)=>`<label><input type='radio' name='intro${i}' value='${idx}'> ${c}</label>`).join('');
+    box.appendChild(div);
+  });
+};
+
+$('submit-intro').onclick = () => {
+  let correct = 0;
+  introQuestions.forEach((q,i)=>{
+    let choice = document.querySelector(`input[name=intro${i}]:checked`);
+    if(choice && Number(choice.value)===q.a) correct++;
+  });
+
+  $('score-intro').innerHTML = `🎉 得分：${correct}/${introQuestions.length}${correct / introQuestions.length >= PASS_RATE ? ' ✨ 優秀！' : ''}`;
+  // 記錄並更新總成績顯示
+  scoreState.intro = { correct: correct, total: introQuestions.length };
+  updateOverallDisplay();
+
+  // 不設門檻：無論得分如何都可以開始最後一個問卷
+  $('btn-start-quiz-phrases').disabled = false;
+};
+
+$('btn-start-quiz-phrases').onclick = () => {
+  $('quiz-phrases').classList.remove('hidden');
+  const box = $('quiz-phrases-questions');
+  box.innerHTML = '';
+
+  const questions = shuffle([...phraseList]).slice(0,5);
+
+  questions.forEach((item, qi) => {
+    const [jp, zh] = item;
+    const others = shuffle(phraseList.filter(p => p[0] !== jp)).slice(0,3).map(p => p[1]);
+    const opts = shuffle([zh, ...others]);
+
+    const div = document.createElement('div');
+    div.className = 'mc-block';
+    let html = `<p>${qi+1}. ${jp} 的意思是？</p>`;
+    html += opts.map((o, idx) => `<label><input type="radio" name="phr${qi}" value="${o}"> ${o}</label>`).join('');
+    div.dataset.correct = zh;
+    div.innerHTML = html;
+    box.appendChild(div);
+  });
+};
+
+$('submit-phrases').onclick = () => {
+  const blocks = [...document.querySelectorAll('#quiz-phrases-questions .mc-block')];
+  let correct = 0;
+  blocks.forEach((blk, i) => {
+    const sel = blk.querySelector('input[type=radio]:checked');
+    const ok = sel && sel.value === blk.dataset.correct;
+    if(ok){
+      correct++;
+      blk.classList.remove('wrong');
+    } else {
+      blk.classList.add('wrong');
+    }
+  });
+  $('score-phrases').innerHTML = `🎉 得分：${correct}/${blocks.length}${correct / blocks.length >= PASS_RATE ? ' ✨ 優秀！' : ''}`;
+  // 記錄並更新總成績顯示
+  scoreState.phrases = { correct: correct, total: blocks.length };
+  updateOverallDisplay();
+  if(correct / blocks.length < PASS_RATE) crowFly();
+};
+
+function crowFly(){
+  const visibleQuizzes = [...document.querySelectorAll('.quiz-area')].filter(el => !el.classList.contains('hidden'));
+  if(visibleQuizzes.length === 0){
+    const card = document.querySelector('.card');
+    applyDanger(card);
+  } else {
+    visibleQuizzes.forEach(q => applyDanger(q));
+  }
+
+  function applyDanger(el){
+    if(!el) return;
+    el.classList.add('danger','shake-card');
+    setTimeout(()=> el.classList.remove('shake-card'), 700);
+    setTimeout(()=> el.classList.remove('danger'), 1400);
+  }
+}
+</script>
+</body>
+</html>
